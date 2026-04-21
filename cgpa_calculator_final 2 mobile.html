@@ -1,0 +1,321 @@
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+  .app { min-height: 100vh; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%); padding: 24px 16px; }
+  .header { text-align: center; margin-bottom: 28px; }
+  .header h1 { font-size: 26px; font-weight: 500; color: #e2e8f0; letter-spacing: -0.5px; }
+  .header p { font-size: 13px; color: #94a3b8; margin-top: 4px; }
+  .layout { display: grid; grid-template-columns: 1fr 280px; gap: 16px; max-width: 960px; margin: 0 auto; }
+  .left { display: flex; flex-direction: column; gap: 16px; }
+  .card { background: rgba(255,255,255,0.05); border: 0.5px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 20px; backdrop-filter: blur(10px); }
+  .card-title { font-size: 13px; font-weight: 500; color: #818cf8; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .card-title::before { content: ''; display: block; width: 3px; height: 14px; background: linear-gradient(180deg, #818cf8, #a78bfa); border-radius: 2px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 12px; color: #94a3b8; font-weight: 500; }
+  .field input, .field select { background: rgba(255,255,255,0.07); border: 0.5px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 10px 12px; color: #e2e8f0; font-size: 14px; font-family: var(--font-sans); transition: border-color 0.2s; width: 100%; }
+  .field input:focus, .field select:focus { outline: none; border-color: #818cf8; background: rgba(129,140,248,0.1); }
+  .field select option { background: #1e1b4b; color: #e2e8f0; }
+  .course-row { display: grid; grid-template-columns: 1fr 80px 100px 36px; gap: 8px; align-items: center; background: rgba(255,255,255,0.03); border: 0.5px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 12px; transition: background 0.2s; }
+  .course-row:hover { background: rgba(255,255,255,0.06); }
+  .course-row input, .course-row select { background: transparent; border: none; color: #e2e8f0; font-size: 13px; font-family: var(--font-sans); padding: 2px 4px; width: 100%; }
+  .course-row input:focus, .course-row select:focus { outline: none; background: rgba(129,140,248,0.1); border-radius: 4px; }
+  .course-row select option { background: #1e1b4b; }
+  .courses-header { display: grid; grid-template-columns: 1fr 80px 100px 36px; gap: 8px; padding: 0 12px; margin-bottom: 8px; }
+  .courses-header span { font-size: 11px; color: #64748b; font-weight: 500; text-transform: uppercase; letter-spacing: 0.6px; }
+  .btn-add { display: flex; align-items: center; gap: 8px; background: rgba(129,140,248,0.15); border: 0.5px solid rgba(129,140,248,0.4); border-radius: 8px; padding: 10px 16px; color: #818cf8; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: var(--font-sans); margin-top: 12px; }
+  .btn-add:hover { background: rgba(129,140,248,0.25); transform: translateY(-1px); }
+  .btn-remove { background: rgba(239,68,68,0.1); border: 0.5px solid rgba(239,68,68,0.3); border-radius: 6px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; color: #f87171; font-size: 16px; line-height: 1; flex-shrink: 0; }
+  .btn-remove:hover { background: rgba(239,68,68,0.2); }
+  .btn-row { display: flex; gap: 10px; margin-top: 4px; }
+  .btn-save { flex: 1; background: linear-gradient(135deg, #4f46e5, #7c3aed); border: none; border-radius: 10px; padding: 12px; color: white; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: var(--font-sans); }
+  .btn-save:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(79,70,229,0.4); }
+  .btn-clear { background: rgba(239,68,68,0.1); border: 0.5px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 12px 20px; color: #f87171; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: var(--font-sans); }
+  .btn-clear:hover { background: rgba(239,68,68,0.2); }
+  .btn-pdf { flex: 1; background: rgba(20,184,166,0.15); border: 0.5px solid rgba(20,184,166,0.4); border-radius: 10px; padding: 12px; color: #2dd4bf; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: var(--font-sans); }
+  .btn-pdf:hover { background: rgba(20,184,166,0.25); }
+  .right { display: flex; flex-direction: column; gap: 14px; }
+  .ring-card { background: rgba(255,255,255,0.05); border: 0.5px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 20px; text-align: center; }
+  .ring-card .ring-label { font-size: 11px; color: #818cf8; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; font-weight: 500; }
+  .ring-wrap { position: relative; width: 120px; height: 120px; margin: 0 auto 10px; }
+  .ring-wrap svg { transform: rotate(-90deg); }
+  .ring-value { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 22px; font-weight: 500; color: #e2e8f0; }
+  .ring-value span { display: block; font-size: 10px; color: #64748b; font-weight: 400; margin-top: 1px; }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat-card { background: rgba(255,255,255,0.04); border: 0.5px solid rgba(255,255,255,0.09); border-radius: 10px; padding: 12px; text-align: center; }
+  .stat-card .s-val { font-size: 18px; font-weight: 500; color: #c4b5fd; }
+  .stat-card .s-lbl { font-size: 10px; color: #64748b; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .classification { background: linear-gradient(135deg, rgba(79,70,229,0.2), rgba(124,58,237,0.2)); border: 0.5px solid rgba(129,140,248,0.35); border-radius: 10px; padding: 14px; text-align: center; }
+  .classification .cls-title { font-size: 10px; color: #818cf8; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+  .classification .cls-val { font-size: 14px; font-weight: 500; color: #c4b5fd; }
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(80px); background: #1e293b; border: 0.5px solid rgba(129,140,248,0.5); border-radius: 10px; padding: 10px 20px; color: #e2e8f0; font-size: 13px; transition: transform 0.3s ease; z-index: 999; pointer-events: none; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .err { border-color: rgba(239,68,68,0.5) !important; }
+  @media (max-width: 640px) {
+    .layout { grid-template-columns: 1fr; }
+    .field-row { grid-template-columns: 1fr; }
+    .right { order: -1; }
+    .course-row { grid-template-columns: 1fr 60px 80px 36px; gap: 6px; padding: 8px 10px; }
+    .courses-header { grid-template-columns: 1fr 60px 80px 36px; gap: 6px; padding: 0 10px; }
+    .course-row input, .course-row select { font-size: 12px; }
+    .btn-row { flex-wrap: wrap; }
+    .btn-save, .btn-pdf { min-width: 0; }
+  }
+</style>
+
+<div class="app" id="appRoot">
+  <div class="header">
+    <h1>CGPA Calculator</h1>
+    <p>Track your academic performance in real time</p>
+  </div>
+  <div class="layout">
+    <div class="left">
+      <div class="card">
+        <div class="card-title">Academic background</div>
+        <div class="field-row">
+          <div class="field">
+            <label>Previous CGPA</label>
+            <input type="number" id="prevCGPA" placeholder="e.g. 3.50" min="0" max="4" step="0.01">
+          </div>
+          <div class="field">
+            <label>Total Credits Completed</label>
+            <input type="number" id="prevCredits" placeholder="e.g. 90" min="0" step="1">
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Current semester courses</div>
+        <div class="courses-header">
+          <span>Course code</span>
+          <span>Credits</span>
+          <span>Grade</span>
+          <span></span>
+        </div>
+        <div id="courseList"></div>
+        <button class="btn-add" onclick="addCourse()">+ Add course</button>
+        <div class="btn-row" style="margin-top: 16px;">
+          <button class="btn-save" onclick="saveData()">Save data</button>
+          <button class="btn-pdf" onclick="exportPDF()">Export PDF</button>
+          <button class="btn-clear" onclick="clearData()">Clear</button>
+        </div>
+      </div>
+    </div>
+    <div class="right" id="metricsPanel">
+      <div class="ring-card">
+        <div class="ring-label">This semester GPA</div>
+        <div class="ring-wrap">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="10"/>
+            <circle cx="60" cy="60" r="50" fill="none" stroke="url(#g1)" stroke-width="10" stroke-linecap="round" stroke-dasharray="314" id="semRing" stroke-dashoffset="314"/>
+            <defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient></defs>
+          </svg>
+          <div class="ring-value" id="semGPAVal">0.00<span>/ 4.00</span></div>
+        </div>
+      </div>
+      <div class="ring-card">
+        <div class="ring-label">Overall CGPA</div>
+        <div class="ring-wrap">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="10"/>
+            <circle cx="60" cy="60" r="50" fill="none" stroke="url(#g2)" stroke-width="10" stroke-linecap="round" stroke-dasharray="314" id="cgpaRing" stroke-dashoffset="314"/>
+            <defs><linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2dd4bf"/><stop offset="100%" stop-color="#34d399"/></linearGradient></defs>
+          </svg>
+          <div class="ring-value" id="overallCGPAVal">0.00<span>/ 4.00</span></div>
+        </div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="s-val" id="semCreditsVal">0</div><div class="s-lbl">Sem credits</div></div>
+        <div class="stat-card"><div class="s-val" id="totalCreditsVal">0</div><div class="s-lbl">Total credits</div></div>
+        <div class="stat-card"><div class="s-val" id="coursesVal">0</div><div class="s-lbl">Courses</div></div>
+        <div class="stat-card"><div class="s-val" id="gradePointsVal">0.00</div><div class="s-lbl">Grade points</div></div>
+      </div>
+      <div class="classification">
+        <div class="cls-title">Standing</div>
+        <div class="cls-val" id="classificationVal">—</div>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+const GRADE_MAP = { 'A': 4.00, 'A-': 3.70, 'B+': 3.30, 'B': 3.00, 'B-': 2.70, 'C+': 2.30, 'C': 2.00, 'C-': 1.70, 'D+': 1.30, 'D': 1.00, 'F': 0.00 };
+const GRADES = ['A','A-','B+','B','B-','C+','C','C-','D+','D','F'];
+let courses = [];
+let courseId = 0;
+
+function gradeOptions(sel) {
+  return GRADES.map(g => `<option value="${g}" ${sel===g?'selected':''}>${g}</option>`).join('');
+}
+
+function addCourse(code='', credits='', grade='A') {
+  const id = ++courseId;
+  courses.push({ id, code, credits, grade });
+  renderCourses();
+}
+
+function removeCourse(id) {
+  courses = courses.filter(c => c.id !== id);
+  renderCourses();
+  calc();
+}
+
+function renderCourses() {
+  const list = document.getElementById('courseList');
+  list.innerHTML = courses.map(c => `
+    <div class="course-row" id="cr-${c.id}">
+      <input type="text" placeholder="e.g. CSE301" value="${c.code}" oninput="updateCourse(${c.id},'code',this.value)" />
+      <input type="number" placeholder="3" min="0.5" max="6" step="0.5" value="${c.credits}" oninput="updateCourse(${c.id},'credits',this.value)" />
+      <select onchange="updateCourse(${c.id},'grade',this.value)">${gradeOptions(c.grade)}</select>
+      <div class="btn-remove" onclick="removeCourse(${c.id})" title="Remove">&#x2715;</div>
+    </div>
+  `).join('');
+  calc();
+}
+
+function updateCourse(id, field, val) {
+  const c = courses.find(x => x.id === id);
+  if (c) c[field] = val;
+  calc();
+}
+
+function calc() {
+  const prevCGPAInput = document.getElementById('prevCGPA').value.trim();
+  const prevCreditsInput = document.getElementById('prevCredits').value.trim();
+  const prevCGPA = parseFloat(prevCGPAInput);
+  const prevCredits = parseFloat(prevCreditsInput);
+  const hasPrev = !isNaN(prevCGPA) && prevCGPAInput !== '' && !isNaN(prevCredits) && prevCreditsInput !== '' && prevCredits > 0;
+  let semGPSum = 0, semGPSumUnweighted = 0, semCr = 0, valid = 0;
+  courses.forEach(c => {
+    const cr = parseFloat(c.credits);
+    const gp = GRADE_MAP[c.grade] ?? 0;
+    if (cr > 0) { semGPSum += gp * cr; semGPSumUnweighted += gp; semCr += cr; valid++; }
+  });
+  // Use weighted formula only if previous CGPA and credits are provided
+  let overallCGPA, totalCr, semGPA;
+  if (hasPrev) {
+    semGPA = semCr > 0 ? (semGPSum / semCr) : 0;
+    totalCr = prevCredits + semCr;
+    overallCGPA = totalCr > 0 ? (prevCGPA * prevCredits + semGPA * semCr) / totalCr : 0;
+  } else {
+    // No previous data: GPA = simple average of grade points, credits don't affect it
+    semGPA = valid > 0 ? (semGPSumUnweighted / valid) : 0;
+    totalCr = semCr;
+    overallCGPA = semGPA;
+  }
+  const semGP = semGPSum; // for gradePointsVal display
+  updateRing('semRing', semGPA, 4);
+  updateRing('cgpaRing', overallCGPA, 4);
+  setText('semGPAVal', semGPA.toFixed(2) + '<span>/ 4.00</span>');
+  setText('overallCGPAVal', overallCGPA.toFixed(2) + '<span>/ 4.00</span>');
+  setText('semCreditsVal', semCr.toFixed(1));
+  setText('totalCreditsVal', totalCr.toFixed(1));
+  setText('coursesVal', valid);
+  setText('gradePointsVal', semGP.toFixed(2));
+  setText('classificationVal', classify(overallCGPA));
+}
+
+function updateRing(id, val, max) {
+  const pct = Math.min(val / max, 1);
+  const circ = 314;
+  document.getElementById(id).style.strokeDashoffset = (circ * (1 - pct)).toFixed(2);
+  document.getElementById(id).style.transition = 'stroke-dashoffset 0.6s cubic-bezier(.4,0,.2,1)';
+}
+
+function setText(id, html) {
+  document.getElementById(id).innerHTML = html;
+}
+
+function classify(cgpa) {
+  if (cgpa >= 3.80) return 'Summa Cum Laude';
+  if (cgpa >= 3.60) return 'Magna Cum Laude';
+  if (cgpa >= 3.40) return 'Cum Laude';
+  if (cgpa >= 3.00) return 'Good Standing';
+  if (cgpa >= 2.00) return 'Satisfactory';
+  if (cgpa > 0) return 'Academic Probation';
+  return '—';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function saveData() {
+  const data = {
+    prevCGPA: document.getElementById('prevCGPA').value,
+    prevCredits: document.getElementById('prevCredits').value,
+    courses
+  };
+  localStorage.setItem('cgpa_data', JSON.stringify(data));
+  showToast('Data saved successfully');
+}
+
+function clearData() {
+  document.getElementById('prevCGPA').value = '';
+  document.getElementById('prevCredits').value = '';
+  courses = []; courseId = 0;
+  renderCourses();
+  calc();
+  localStorage.removeItem('cgpa_data');
+  showToast('All data cleared');
+}
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem('cgpa_data');
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    document.getElementById('prevCGPA').value = data.prevCGPA || '';
+    document.getElementById('prevCredits').value = data.prevCredits || '';
+    if (data.courses && data.courses.length) {
+      courses = data.courses;
+      courseId = Math.max(...courses.map(c => c.id), 0);
+      renderCourses();
+    }
+    calc();
+  } catch(e) {}
+}
+
+function exportPDF() {
+  const prevCGPAInput = document.getElementById('prevCGPA').value.trim();
+  const prevCreditsInput = document.getElementById('prevCredits').value.trim();
+  const prevCGPA = parseFloat(prevCGPAInput);
+  const prevCredits = parseFloat(prevCreditsInput);
+  const hasPrev = !isNaN(prevCGPA) && prevCGPAInput !== '' && !isNaN(prevCredits) && prevCreditsInput !== '' && prevCredits > 0;
+  let semGPSum = 0, semGPSumUnweighted = 0, semCr = 0, validCount = 0;
+  let rows = courses.map(c => {
+    const cr = parseFloat(c.credits) || 0;
+    const gp = GRADE_MAP[c.grade] ?? 0;
+    if (cr > 0) { semGPSum += gp * cr; semGPSumUnweighted += gp; semCr += cr; validCount++; }
+    return `<tr><td>${c.code||'—'}</td><td>${cr}</td><td>${c.grade}</td><td>${gp.toFixed(2)}</td><td>${(gp*cr).toFixed(2)}</td></tr>`;
+  }).join('');
+  let semGPA, totalCr, overallCGPA;
+  if (hasPrev) {
+    semGPA = semCr > 0 ? (semGPSum / semCr) : 0;
+    totalCr = prevCredits + semCr;
+    overallCGPA = totalCr > 0 ? ((prevCGPA * prevCredits + semGPA * semCr) / totalCr).toFixed(2) : '0.00';
+  } else {
+    semGPA = validCount > 0 ? (semGPSumUnweighted / validCount) : 0;
+    totalCr = semCr;
+    overallCGPA = semGPA.toFixed(2);
+  }
+  const html = `<!DOCTYPE html><html><head><style>body{font-family:sans-serif;padding:32px;color:#111}h1{font-size:22px;margin-bottom:4px}p{color:#555;font-size:13px;margin-bottom:24px}table{width:100%;border-collapse:collapse;margin-bottom:24px}th,td{padding:10px 14px;border:1px solid #e2e8f0;font-size:13px;text-align:left}th{background:#f8fafc;font-weight:600}.summary{display:flex;gap:16px}.sum-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px 24px;text-align:center}.sum-card .v{font-size:24px;font-weight:600;color:#4f46e5}.sum-card .l{font-size:12px;color:#64748b;margin-top:2px}</style></head><body><h1>CGPA Calculator Report</h1><p>Generated on ${new Date().toLocaleDateString()}</p><table><thead><tr><th>Course</th><th>Credits</th><th>Grade</th><th>Grade Point</th><th>Quality Points</th></tr></thead><tbody>${rows}</tbody></table><div class="summary"><div class="sum-card"><div class="v">${semGPA}</div><div class="l">Semester GPA</div></div><div class="sum-card"><div class="v">${overallCGPA}</div><div class="l">Overall CGPA</div></div><div class="sum-card"><div class="v">${totalCr.toFixed(1)}</div><div class="l">Total Credits</div></div><div class="sum-card"><div class="v">${classify(parseFloat(overallCGPA))}</div><div class="l">Standing</div></div></div></body></html>`;
+  const blob = new Blob([html], {type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'cgpa-report.html';
+  a.click(); URL.revokeObjectURL(url);
+  showToast('Report exported');
+}
+
+document.getElementById('prevCGPA').addEventListener('input', calc);
+document.getElementById('prevCredits').addEventListener('input', calc);
+
+loadData();
+if (!courses.length) { addCourse('CSE301', 3, 'A'); addCourse('MAT201', 3, 'B+'); addCourse('ENG102', 2, 'A-'); }
+</script>
